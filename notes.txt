@@ -1,0 +1,78 @@
+Linux Commands
+ 
+"~" == /home/jackadmin
+ 
+cd 
+change directory
+ 
+ls
+print directory
+ 
+touch
+used to create new files and to refresh timestamps.
+ 
+nano
+built in text editor
+ 
+cat 
+will print out contents of a file
+ 
+mkdir 
+makes a directory
+ 
+rmdir
+removes a directory
+ 
+mv
+move or rename a file
+ 
+cp 
+copy a file
+ 
+rm remove a file
+ 
+code
+opens a file in VS code on client side
+
+
+--------------------fork----------------------------------------------------------
+fork(): a linux system call that creates a new process in the current process
+the current process will be called parent process and newly created process is called child process
+after calling fork(), parent and child resume execution from the point just after the system call
+the child process gets a unique id "pid"
+fork() returns a value that you can use to program diffrenet bhvior between parent and child
+fork() returns to the parent either the created child's PID or in cases of error it returns -1
+fork() returns 0 to child process.
+
+your memory is copied at child creatine
+this means that variables and other resources are not shared between parent and child
+1 way to rretrieve values from a child task is to read its exit status
+this is not ideal as it is limited to a single byte value
+see forke2 for example.
+
+as the parent of a child you can wait for your child to finish
+wait()
+  parent waits til the next child process finishes
+waitpid()
+  parent waits til the particular child process finishes
+wait(&status)
+  provides a status pointer to wait() to get status
+WAXITSTATUS(status)
+  returns status value
+
+
+system() = allows you to pass off command string to the bash command
+
+
+ps = short for "process status" -> shows information about the current running process
+    PID TTY          TIME CMD
+  28129 pts/3    00:00:00 bash
+  29755 pts/3    00:00:00 ps
+
+rand() in C we use rand() and srand from the stdlibh to generate random numbers.
+  srand((unsigned int) time(NULL));
+  must provide a seed to the random number genrator
+  there's no such thing as real random number
+  there's a predetermined set of random number, and aa seed is provided as an offset to make sure one batch is not the same as another.
+
+int randomNumber = (rand()%10+1)
