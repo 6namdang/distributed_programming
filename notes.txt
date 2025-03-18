@@ -1,78 +1,276 @@
-Linux Commands
- 
-"~" == /home/jackadmin
- 
-cd 
-change directory
- 
-ls
-print directory
- 
-touch
+--==========================================Linux Commands==========================================
+
+"~" == /home/ali
+cd == change directory
+ls == print directory
+touch 
 used to create new files and to refresh timestamps.
- 
-nano
-built in text editor
- 
+
+Nano 
+build in text editor 
+
 cat 
-will print out contents of a file
- 
-mkdir 
-makes a directory
- 
-rmdir
-removes a directory
- 
-mv
-move or rename a file
- 
-cp 
-copy a file
- 
-rm remove a file
- 
+will print out context of a files
+
+mkdir
+makes a new directory/folder
+
+rmdir 
+removes a directory 
+
+cp
+copy files
+
+rm 
+deletes a file 
+
 code
-opens a file in VS code on client side
+opens a file in vs code 
+
+g++ filename.cpp
+compile our c++ programs
+
+to compile and name the run file
+example: g++ -o myProgram.out myProgram.cpp
+
+ps 
+    short for "process status" shows us information about currently running process.
+    each process has its own PID
+
+man command
+    manual for different commands
+
+chmod
+    "change mode" used to change(file permissions in a directory).
+    + : adds
+    - : removes
+    r : read
+    w : write
+    x : execute
+
+    example : makes HW1Solution.out executeable
+        chmod +x HW1Solution.out
+
+Process Scheduling
+    Two main scheduling classes
+
+    CFS "Completly Fair Scheduler"
+        Default scheduler for norma (non-real-time) tasks.
+        tasks are given a weight based on thier previous execution time.
+        weight "niceness" is from -20 to 19, lower weights result in more cpu time.
+        As a process gets more run time, weight will start to increase.
+        The operating system will purposely isolate different CFS scheduler for user tasks.
+
+    RT "Real Time Scheduling"
+        For tasks that need predictable response time, or we deam higher priority
+        * All RT scheduled tasks take priority over CFS tasks.
+        Two types of RT scheduling
+            FIFO "first in first out" SCHED_FIFO
+                NO task time slicing, tasks run untill they volentarily yield or block.
+                task are given a priority 1-99;
+                higher priority task can interupt lower ones.
+
+            RR "round Robin" SCHED_RR
+                same as FIFO, but processer time is shared among process with the same assigned priority
+                Think CFS per priority where each task has a niceness of 0;
+
+    See Niceness    
+        ps -o pid,ni,cmp -p <PID>
+    set Niceness
+        sudo renice <NiceLevel> -p <PID>
+            <NiceLevel>
+                should be between -20 -19
+
+    See RT 
+        chrt -p <PID>
+    Set RT 
+        sudo chrt <RTMETHOD> -p <RTLEVEL> <PID>
+            <RTMETHOD>
+                -f for FIFO
+                -r for RR
+                -o for other "sets back to CFS
+            <RTLEVEL>
+                1 - 99, 99 highest priority.
+            
+    Set a process to the 1st cpu
+        taskset -p 0x1 <PID>
+
+---------------------------------------C++ commands -------------------------------------
+fork()
+    A linux system call that creates a new process for the current process.
+    the original process is refered to as the parent, and the new process is a child only works on linux nased OS.
+
+    after calling fork(), both the parent and child resume execution from the point just after the system call
+
+    the child process gets a unique ID "process Id"(PID)
+
+    fork() returns a value that you then use to program different behavior between parent and child.
+    fork() return to the parent either the created child's PID or in case of error -1
+    fork() returns 0 to child process
+
+    your memory is copied at at child creation.
+    this means that variables and other resources are not shared between parent and child.
+
+    one way to retrive values from a child task is to read its exit status.
+    this is not ideal as this is limited to a single byte value.
+    see forkE2 for example.
+    as the parent of a child you can wait for you child to finish.
+    wait(NULL)
+        parent waits till the next child process finishes.
+    waitpid()
+        parent waits till the particular child process finishes.
+    wait(&status)
+        provides a status pointer to wait() to get status.
+
+    WAXITSTATUS(status)
+        returns status value.
+
+system()
+    allow you to pass off command string to the bash shell.
+
+checkout out Terminal Example 1
+
+Pipes
+    can be used to send data from 1 process to another. Data can only be sent in one direction per pipe.
+    pipes are streams of data. writing multiple times adds to the first in, first out buffer. 
+    reading only removes what has been read, not the entire buffer.
+    is a buffer of raw bytes. both process need to know the format of the shared data so they know how much to write and read
+    Pipes must be created before running fork() so that children can use the same pipe as the parent.
+    similar to fork(), it is an operating system-level mechanism that enables communication between process.
+    will not work on non unix\linus operating system.
+
+    pipes are created with the following command.
+    steps for creating a piple:
+        int myPiple[2]; //declare array that will represent 2 ends of the pipe
+        pipe(myPipe);   // call the pipe function on the array creating the pipe on the os level.
+
+    Pipes have a read and write end represented by an int array's first and secound indexes.
+    both ends per process have the status of open or closed, default open.
+    closed by using the close() function, once closed, cannot be re-opened.
+    closing pipes is good practice, it tells the os you are done with it, and frees up resources.
+        close(myPipe[0]); //closes the read end
+            tells writing process that no one is listening
+        close(myPipe[1]); //close the writing end
+            closing the writing end of a pipe allows reading process to stop waitinf for data, return 0
+
+    for example of reading and writing to pipes, check out pipesE1 and pipesE2.
+
+    strings
+    strings are weired in c and c++
+    in standard c there is no string datatype, we use char arrays.
+    
+"strings"
+
+  Strings are weird in C and C++. 
+
+  In standard C there is no string datatype, we use char arrays. 
+
+  A char array of length 15 can only hold a string of 14 chars, as the last char must hold '\0' null terminator. 
+
+  Outside of initialization, you cannot just set a char array equal to a string value. You must use strcpy().  
+
+  Examples
+
+    char myArray[20] = "Hello world";
 
 
---------------------fork----------------------------------------------------------
-fork(): a linux system call that creates a new process in the current process
-the current process will be called parent process and newly created process is called child process
-after calling fork(), parent and child resume execution from the point just after the system call
-the child process gets a unique id "pid"
-fork() returns a value that you can use to program diffrenet bhvior between parent and child
-fork() returns to the parent either the created child's PID or in cases of error it returns -1
-fork() returns 0 to child process.
 
-your memory is copied at child creatine
-this means that variables and other resources are not shared between parent and child
-1 way to rretrieve values from a child task is to read its exit status
-this is not ideal as it is limited to a single byte value
-see forke2 for example.
+    // You can change single chars in the array using normal indexing.
 
-as the parent of a child you can wait for your child to finish
-wait()
-  parent waits til the next child process finishes
-waitpid()
-  parent waits til the particular child process finishes
-wait(&status)
-  provides a status pointer to wait() to get status
-WAXITSTATUS(status)
-  returns status value
+    myArray[6] = 'W';
 
 
-system() = allows you to pass off command string to the bash command
+
+    // To change the entire string, do the folowing.
+
+    strcpy(myArray, "Yo world whats up!!!");
 
 
-ps = short for "process status" -> shows information about the current running process
-    PID TTY          TIME CMD
-  28129 pts/3    00:00:00 bash
-  29755 pts/3    00:00:00 ps
 
-rand() in C we use rand() and srand from the stdlibh to generate random numbers.
-  srand((unsigned int) time(NULL));
-  must provide a seed to the random number genrator
-  there's no such thing as real random number
-  there's a predetermined set of random number, and aa seed is provided as an offset to make sure one batch is not the same as another.
+    printf("%s\n", myArray); // prints string
 
-int randomNumber = (rand()%10+1)
+rand()
+    In c we use rand() and srand from the stdlib.h to generate random numbers.
+    srand((unsigned int)time(NULL));
+        before you can start to generate random numbers, you must provide a seed to the random number generator
+        there is no such thing as real random number in programmin.
+        there is a predetermined set of random numbers, and a seed is provided as an offset to make sure one batch 
+        is not the same as another.
+
+    int randNum = (rand() % 10 +1);
+        rand returns a number from 0-32767, so we must use % to set a max number.
+        we then add 1 to the result, giving us a random from 1-10;
+
+Signals
+    An asunchronous notification sent to a process, that acts as an interupt. Intended to notify a program 
+    of an event or to interupt current process operation.
+    default action when recieving a signal often terminationed.
+    within our program we "catch or "handle signals using user defined signal handler function
+    we can also specify in our program to ignore signals.
+    Is part of PostIX\Unix.
+
+    common signals
+        SIGINT
+            sent when user types ctrl+c into Terminal   
+                kills the process
+        SIGTERM
+            Request to terminate, but gracefully
+                kills the process, but lets program finish what it deems necessary.
+        
+        SIGKILL
+            force kill, cannot be caught oro ignored
+
+        SIGSTOP
+            stops or pauses the process, cannot be caught or ignored
+        
+        SIGCONT 
+            Resumes stoped process
+        
+        SIGCHILD
+            child process has been stoped or terminated 
+            Ignored by default
+
+        SIGALRM
+            Alarm clock signal sent by alarm() or settimer()
+
+        SIGUSER1
+        SIGUSER2
+            unidentified for programmer use.
+                kills the process.
+
+            there are more signals , look them up if intereasted 256 signals total.
+
+    Sending Signals!!!
+        processes can send signal to themselves or other processes using the following c system call.
+
+        #include <csignal>
+
+        kill(pid_t targetPid, int signal);
+            send signal to targetPid.
+
+        raise(int sig)
+            sends signal to calling process.
+
+    Handling Signals!!!
+        see signal examples for reference.
+
+        in main
+            signal(int signal, int functionPointer)
+        
+        void handler(int sig){
+            printf("Caught the following signal %d, killing program\n" sig)
+
+            exit(0);
+        }
+Pointers 
+    a variable that holds a memory address, usually of another variable or object.
+    A pointers have a type this is important for understanding what is stored by a pointer and dereferenceing it later
+    dereferenceing is accessing the values stored at the pointer location.
+    need to be extra careful when using pointers with array, there is no way way to tell the size of an array a array pointer points at.
+    It is often quicker for the compiled to pass pointers instead of copying large amounts of data.
+    For Implementation, checkout pointersE
+
+POSIX= is short for portable operating system interface is a selection of standards specified by ieee that define a common application interface
+for operating system.
+this was developed so that different flavors of unix and other unix like systems like Linux. Specification focuses on common system calls,
+such as fork(), read(), write(), kill(), etc.
