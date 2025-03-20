@@ -15,6 +15,7 @@ void addingToGlobal(int threadNum, int add) {
     {   globalNumMutex.lock();
         globalNum = globalNum + 1;
         cout << "Thread number" << threadNum << "count "<< globalNum << endl;
+        globalNumMutex.unlock();
     }
     cout << "Thread " << threadNum << "Has finished counting to " << globalNum << endl;
 
@@ -44,10 +45,7 @@ int main () {
     }
 
     
-    for (thread& th : globalThreads) {
-        th.join();
-    }
-
+    for (int i=0; i< )
     for (thread& th : pointerThreads) {
         th.join();
     }
